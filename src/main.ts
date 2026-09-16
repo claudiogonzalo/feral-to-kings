@@ -2,7 +2,7 @@ import { Player, ITEM_LIST } from './entities/player';
 import { WorldMap, RoomData, TileType, RoomType } from './world/worldMap';
 import { Enemy, EnemyType } from './entities/enemy';
 import { Sprites, initSprites } from './graphics/spriteGenerator';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, TILE_SIZE, ROOM_COLS, ROOM_ROWS } from './types';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, TILE_SIZE, ROOM_COLS, ROOM_ROWS, WORLD_GRID_SIZE } from './types';
 
 export interface Projectile {
   x: number;
@@ -25,11 +25,15 @@ export class Game {
   public enemies: Enemy[] = [];
   private projectiles: Projectile[] = [];
 
-  // Controls
+  // Controls & Overlay Views
   private keys: Record<string, boolean> = {};
   private showInventory: boolean = false;
+  private showFullMap: boolean = false;
   private activeMessage: string = '';
   private messageTimer: number = 0;
+
+  // Camera Zoom (1.8x default zoom centered on player)
+  private zoomLevel: number = 1.8;
 
   private lastTime: number = 0;
 
@@ -68,6 +72,10 @@ export class Game {
       // Single trigger keys
       if (e.key.toLowerCase() === 'i') {
         this.showInventory = !this.showInventory;
+        if (this.showInventory) this.showFullMap = false;
+      } else if (e.key.toLowerCase() === 'm') {
+        this.showFullMap = !this.showFullMap;
+        if (this.showFullMap) this.showInventory = false;
       } else if (e.key === 'f5') {
         e.preventDefault();
         this.saveState(1);
@@ -99,7 +107,7 @@ export class Game {
     this.enemies = [];
     if (!this.currentRoom.hasEnemies || this.currentRoom.isCampCleared) return;
 
-    const count = this.currentRoom.roomType === RoomType.CAMP ? 8 : 4;
+    const count = this.currentRoom.roomType === RoomType.CAMP ? 8 : 5;
     const enemyTypes = [EnemyType.SLIME, EnemyType.BAT, EnemyType.SKELETON, EnemyType.ARCHER];
     if (this.currentRoom.roomType === RoomType.CAMP) {
       enemyTypes.push(EnemyType.BOSS);
@@ -127,7 +135,7 @@ export class Game {
     const dt = Math.min((currentTime - this.lastTime) / 1000, 0.1);
     this.lastTime = currentTime;
 
-    if (!this.showInventory) {
+    if (!this.showInventory && !this.showFullMap) {
       this.update(dt);
     }
     this.render();
@@ -250,7 +258,7 @@ export class Game {
       if (r < 0 || r >= ROOM_ROWS || c < 0 || c >= ROOM_COLS) return true;
 
       const tile = this.currentRoom.tiles[r][c];
-      if (tile === TileType.WALL || tile === TileType.GATE) {
+      if (tile === TileType.WALL || tile === TileType.GATE || tile === TileType.TREE) {
         return true;
       }
       if (tile === TileType.WATER && this.player.selectedItemIndex !== 6) { // Flippers allow water
@@ -421,6 +429,24 @@ export class Game {
     this.ctx.fillStyle = '#0f172a';
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+    // Save context for camera transformation
+    this.ctx.save();
+
+    // Calculate Camera Centered Zoom on Player
+    const playerCenterX = this.player.x + 16;
+    const playerCenterY = this.player.y + 16;
+
+    // Clamp camera within room boundaries
+    const halfScaledWidth = (CANVAS_WIDTH / this.zoomLevel) / 2;
+    const halfScaledHeight = (CANVAS_HEIGHT / this.zoomLevel) / 2;
+
+    const camX = Math.max(halfScaledWidth, Math.min(CANVAS_WIDTH - halfScaledWidth, playerCenterX));
+    const camY = Math.max(halfScaledHeight, Math.min(CANVAS_HEIGHT - halfScaledHeight, playerCenterY));
+
+    this.ctx.translate(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    this.ctx.scale(this.zoomLevel, this.zoomLevel);
+    this.ctx.translate(-camX, -camY);
+
     // Render Tiles
     for (let r = 0; r < ROOM_ROWS; r++) {
       for (let c = 0; c < ROOM_COLS; c++) {
@@ -463,7 +489,10 @@ export class Game {
       this.ctx.fill();
     }
 
-    // Render HUD
+    // Restore context for HUD overlays
+    this.ctx.restore();
+
+    // Render HUD (Unscaled)
     this.renderHUD();
 
     // Render Active Message Banner
@@ -482,6 +511,11 @@ export class Game {
     // Render Inventory Overlay
     if (this.showInventory) {
       this.renderInventoryMenu();
+    }
+
+    // Render Full World Map Overlay [M]
+    if (this.showFullMap) {
+      this.renderFullWorldMap();
     }
   }
 
@@ -521,7 +555,7 @@ export class Game {
 
     this.ctx.textAlign = 'right';
     this.ctx.fillText(`Points: ${this.player.points}`, CANVAS_WIDTH - 15, 20);
-    this.ctx.fillText(`Room: (${this.currentRoom.gridX}, ${this.currentRoom.gridY})`, CANVAS_WIDTH - 15, 36);
+    this.ctx.fillText(`Room: (${this.currentRoom.gridX}, ${this.currentRoom.gridY}) | [M] World Map`, CANVAS_WIDTH - 15, 36);
   }
 
   private renderInventoryMenu(): void {
@@ -579,6 +613,65 @@ export class Game {
     this.ctx.fillStyle = '#64748b';
     this.ctx.font = '12px monospace';
     this.ctx.fillText('Press [I] to Close Inventory | [1-9] or [Q/E] to Select Item', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 160);
+  }
+
+  private renderFullWorldMap(): void {
+    // Background Overlay
+    this.ctx.fillStyle = 'rgba(15, 23, 42, 0.96)';
+    this.ctx.fillRect(60, 50, CANVAS_WIDTH - 120, CANVAS_HEIGHT - 100);
+    this.ctx.strokeStyle = '#facc15';
+    this.ctx.lineWidth = 3;
+    this.ctx.strokeRect(60, 50, CANVAS_WIDTH - 120, CANVAS_HEIGHT - 100);
+
+    this.ctx.fillStyle = '#f8fafc';
+    this.ctx.font = '18px monospace';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText('64x64 WORLD MAP (4096 OVERWORLD ROOMS)', CANVAS_WIDTH / 2, 85);
+
+    // 64x64 Grid Rendering
+    const mapSize = 480; // 480x480px
+    const startX = (CANVAS_WIDTH - mapSize) / 2;
+    const startY = 100;
+    const cellSize = mapSize / WORLD_GRID_SIZE; // 7.5px per room cell
+
+    for (let gy = 0; gy < WORLD_GRID_SIZE; gy++) {
+      for (let gx = 0; gx < WORLD_GRID_SIZE; gx++) {
+        const rx = startX + gx * cellSize;
+        const ry = startY + gy * cellSize;
+
+        const isCurrent = gx === this.currentRoom.gridX && gy === this.currentRoom.gridY;
+        const isSanctuary = gx === 32 && gy === 32;
+
+        if (isCurrent) {
+          this.ctx.fillStyle = '#facc15'; // Golden Player Location
+        } else if (isSanctuary) {
+          this.ctx.fillStyle = '#38bdf8'; // Blue Sanctuary
+        } else {
+          // Room color by coordinate hashing
+          const val = (gx * 37 + gy * 17) % 100;
+          if (val < 25) {
+            this.ctx.fillStyle = '#dc2626'; // Red Camp
+          } else if (val < 40) {
+            this.ctx.fillStyle = '#eab308'; // Relic Chamber
+          } else if (val < 55) {
+            this.ctx.fillStyle = '#78350f'; // Fallen Kingdom
+          } else {
+            this.ctx.fillStyle = '#16a34a'; // Wilderness
+          }
+        }
+
+        this.ctx.fillRect(rx, ry, cellSize - 1, cellSize - 1);
+      }
+    }
+
+    // Legend
+    this.ctx.font = '12px monospace';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillStyle = '#facc15';
+    this.ctx.fillText(`★ Current Room: (${this.currentRoom.gridX}, ${this.currentRoom.gridY})`, CANVAS_WIDTH / 2, 600);
+    this.ctx.fillStyle = '#94a3b8';
+    this.ctx.fillText('Blue: Sanctuary (32,32) | Green: Wilderness | Red: Camp | Yellow: Relic | Brown: Ruins', CANVAS_WIDTH / 2, 620);
+    this.ctx.fillText('Press [M] to Close World Map', CANVAS_WIDTH / 2, 640);
   }
 }
 
