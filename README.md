@@ -8,16 +8,21 @@ A retro top-down adventure web game inspired by *The Legend of Zelda: A Link to 
 The local development server is running and accessible at:
 👉 **[http://localhost:5173](http://localhost:5173)** (or **`http://127.0.0.1:5173`**)
 
-To start the server manually:
-```bash
-npm install
-npm run dev
-```
+---
 
-To build for production:
-```bash
-npm run build
-```
+## 🖼️ Game Renders & Scenes
+
+### 1. Game Start (Sanctuary at Room 32, 32)
+![Game Start](public/renders/scene1_start.png)
+
+### 2. 25-Item Inventory Overlay Menu
+![25 Traversal Items Inventory](public/renders/scene2_inventory.png)
+
+### 3. Combat & Enemy Camp Room
+![Combat and Enemy Camp](public/renders/scene3_combat.png)
+
+### 4. Overworld Ruins & Ancient Lore Signs
+![Overworld Ruins and Lore](public/renders/scene4_ruins.png)
 
 ---
 
