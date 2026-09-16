@@ -1,0 +1,8 @@
+
+  VITE v5.4.21  ready in 215 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+7:10:47 AM [vite] page reload src/entities/player.ts
+7:11:41 AM [vite] page reload src/entities/enemy.ts
+7:11:44 AM [vite] page reload src/entities/player.ts
+7:11:51 AM [vite] page reload src/main.ts
