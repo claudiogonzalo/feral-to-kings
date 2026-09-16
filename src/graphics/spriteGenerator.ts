@@ -107,141 +107,142 @@ export function initSprites(): void {
     ".OB...BO.."
   ];
 
-  Sprites['player_down'] = createPixelSprite(heroDown, heroPalette, 2);
-  Sprites['player_up'] = createPixelSprite(heroUp, heroPalette, 2);
-  Sprites['player_left'] = createPixelSprite(heroLeft, heroPalette, 2);
-  Sprites['player_right'] = createPixelSprite(heroRight, heroPalette, 2);
+  Sprites['player_down'] = createPixelSprite(heroDown, heroPalette, 3);
+  Sprites['player_up'] = createPixelSprite(heroUp, heroPalette, 3);
+  Sprites['player_left'] = createPixelSprite(heroLeft, heroPalette, 3);
+  Sprites['player_right'] = createPixelSprite(heroRight, heroPalette, 3);
 
   // --- TILES (32x32, 16x16 matrix scaled x2) ---
+  // Palette using single-character keys for createPixelSprite
   const tilePalette: Record<string, string> = {
-    'G1': '#15803d', 'G2': '#16a34a', 'G3': '#22c55e', // Grass
-    'D1': '#78350f', 'D2': '#92400e', 'D3': '#b45309', // Dirt/Path
-    'W1': '#1e40af', 'W2': '#2563eb', 'W3': '#60a5fa', // Water
-    'R1': '#334155', 'R2': '#475569', 'R3': '#64748b', // Rock/Wall
-    'T1': '#14532d', 'T2': '#166534', 'T3': '#854d0e', // Trees
-    'S1': '#e2e8f0', 'S2': '#94a3b8', 'S3': '#f59e0b', // Sign / Relic
-    'B1': '#7f1d1d', 'B2': '#b91c1c', 'B3': '#ef4444', // Door/Camp Lock
-    'C1': '#eab308', 'C2': '#ca8a04', 'C3': '#a16207', // Gold Chest
+    'g': '#15803d', 'G': '#16a34a', 'h': '#22c55e', // Grass (g, G, h)
+    'd': '#78350f', 'D': '#92400e', 'p': '#b45309', // Dirt/Path (d, D, p)
+    'w': '#1e40af', 'W': '#2563eb', 'b': '#60a5fa', // Water (w, W, b)
+    'r': '#334155', 'R': '#475569', 'k': '#64748b', // Rock/Wall (r, R, k)
+    't': '#14532d', 'T': '#166534', 'm': '#854d0e', // Trees (t, T, m)
+    's': '#e2e8f0', 'S': '#94a3b8', 'a': '#f59e0b', // Sign / Relic (s, S, a)
+    'e': '#7f1d1d', 'E': '#b91c1c', 'x': '#ef4444', // Door/Camp Lock (e, E, x)
+    'c': '#eab308', 'C': '#ca8a04', 'j': '#a16207', // Gold Chest (c, C, j)
   };
 
   // Grass Tile
   const grassMat = [
-    "G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1",
-    "G1G2G1G1G1G1G2G1G1G1G1G2G1G1G1G1",
-    "G1G2G3G1G1G1G2G3G1G1G1G2G3G1G1G1",
-    "G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1",
-    "G1G1G1G2G1G1G1G1G1G2G1G1G1G1G1G1",
-    "G1G1G1G2G3G1G1G1G1G2G3G1G1G1G1G1",
-    "G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1",
-    "G1G2G1G1G1G1G1G2G1G1G1G1G1G2G1G1",
-    "G1G2G3G1G1G1G1G2G3G1G1G1G1G2G3G1",
-    "G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1",
-    "G1G1G1G1G2G1G1G1G1G1G2G1G1G1G1G1",
-    "G1G1G1G1G2G3G1G1G1G1G2G3G1G1G1G1",
-    "G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1",
-    "G1G2G1G1G1G1G2G1G1G1G1G2G1G1G1G1",
-    "G1G2G3G1G1G1G2G3G1G1G1G2G3G1G1G1",
-    "G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1G1"
+    "gggggggggggggggg",
+    "gGggggGggggGgggg",
+    "gGhgggGhgggGhggg",
+    "gggggggggggggggg",
+    "gggGgggggGgggggg",
+    "gggGhggggGhggggg",
+    "gggggggggggggggg",
+    "gGgggggGgggggGgg",
+    "gGhggggGhggggGhg",
+    "gggggggggggggggg",
+    "ggggGgggggGggggg",
+    "ggggGhggggGhgggg",
+    "gggggggggggggggg",
+    "gGggggGggggGgggg",
+    "gGhgggGhgggGhggg",
+    "gggggggggggggggg"
   ];
   Sprites['tile_grass'] = createPixelSprite(grassMat, tilePalette, 2);
 
   // Tree Tile
   const treeMat = [
-    "....T1T1T1T1T1T1....",
-    "..T1T2T2T2T2T2T2T1..",
-    ".T1T2T3T3T3T3T3T2T1.",
-    ".T1T2T3T3T3T3T3T2T1.",
-    "T1T2T3T3T3T3T3T3T2T1",
-    "T1T2T3T3T3T3T3T3T2T1",
-    "T1T2T3T3T3T3T3T3T2T1",
-    ".T1T2T3T3T3T3T3T2T1.",
-    "..T1T2T2T2T2T2T2T1..",
-    "....T1T1T1T1T1T1....",
-    "......T3T3T3T3......",
-    "......T3T3T3T3......",
-    "......T3T3T3T3......",
-    "......T3T3T3T3......",
-    ".....T3T3T3T3T3.....",
-    "....T3T3T3T3T3T3...."
+    "....tttttt....",
+    "..tTTTTTTt..",
+    ".tTmTTTTmTt.",
+    ".tTmTTTTmTt.",
+    "tTTTTTTTTTTt",
+    "tTTTTTTTTTTt",
+    "tTTTTTTTTTTt",
+    ".tTTTTTTTTt.",
+    "..tTTTTTTt..",
+    "....tttt....",
+    "......mmmm......",
+    "......mmmm......",
+    "......mmmm......",
+    "......mmmm......",
+    ".....mmmmm.....",
+    "....mmmmmm...."
   ];
   Sprites['tile_tree'] = createPixelSprite(treeMat, tilePalette, 2);
 
   // Rock Wall Tile
   const rockMat = [
-    "R1R1R1R1R1R1R1R1R1R1R1R1R1R1R1R1",
-    "R1R2R2R2R2R1R1R2R2R2R2R2R2R2R1R1",
-    "R1R2R3R3R2R1R1R2R3R3R3R3R3R2R1R1",
-    "R1R2R3R3R2R1R1R2R3R3R3R3R3R2R1R1",
-    "R1R1R1R1R1R1R1R1R1R1R1R1R1R1R1R1",
-    "R1R2R2R2R2R2R2R2R1R1R2R2R2R2R1R1",
-    "R1R2R3R3R3R3R3R2R1R1R2R3R3R2R1R1",
-    "R1R2R3R3R3R3R3R2R1R1R2R3R3R2R1R1",
-    "R1R1R1R1R1R1R1R1R1R1R1R1R1R1R1R1",
-    "R1R2R2R2R2R1R1R2R2R2R2R2R2R2R1R1",
-    "R1R2R3R3R2R1R1R2R3R3R3R3R3R2R1R1",
-    "R1R2R3R3R2R1R1R2R3R3R3R3R3R2R1R1",
-    "R1R1R1R1R1R1R1R1R1R1R1R1R1R1R1R1",
-    "R1R2R2R2R2R2R2R2R1R1R2R2R2R2R1R1",
-    "R1R2R3R3R3R3R3R2R1R1R2R3R3R2R1R1",
-    "R1R1R1R1R1R1R1R1R1R1R1R1R1R1R1R1"
+    "rrrrrrrrrrrrrrrr",
+    "rRRRRrrRRRRRRRrr",
+    "rRkkRrRkkkkkRrr",
+    "rRkkRrRkkkkkRrr",
+    "rrrrrrrrrrrrrrrr",
+    "rRRRRRRRrrRRRRrr",
+    "rRkkkkkRrRkkRrr",
+    "rRkkkkkRrRkkRrr",
+    "rrrrrrrrrrrrrrrr",
+    "rRRRRrrRRRRRRRrr",
+    "rRkkRrRkkkkkRrr",
+    "rRkkRrRkkkkkRrr",
+    "rrrrrrrrrrrrrrrr",
+    "rRRRRRRRrrRRRRrr",
+    "rRkkkkkRrRkkRrr",
+    "rrrrrrrrrrrrrrrr"
   ];
   Sprites['tile_wall'] = createPixelSprite(rockMat, tilePalette, 2);
 
   // Water Tile
   const waterMat = [
-    "W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1",
-    "W1W2W2W2W1W1W1W1W1W2W2W2W1W1W1W1",
-    "W1W2W3W2W1W1W1W1W1W2W3W2W1W1W1W1",
-    "W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1",
-    "W1W1W1W1W2W2W2W1W1W1W1W1W2W2W2W1",
-    "W1W1W1W1W2W3W2W1W1W1W1W1W2W3W2W1",
-    "W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1",
-    "W1W2W2W2W1W1W1W1W1W2W2W2W1W1W1W1",
-    "W1W2W3W2W1W1W1W1W1W2W3W2W1W1W1W1",
-    "W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1",
-    "W1W1W1W1W2W2W2W1W1W1W1W1W2W2W2W1",
-    "W1W1W1W1W2W3W2W1W1W1W1W1W2W3W2W1",
-    "W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1",
-    "W1W2W2W2W1W1W1W1W1W2W2W2W1W1W1W1",
-    "W1W2W3W2W1W1W1W1W1W2W3W2W1W1W1W1",
-    "W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1W1"
+    "wwwwwwwwwwwwwwww",
+    "wWWWwwwwwWWWwwww",
+    "wWBWwwwwwWBWwwww",
+    "wwwwwwwwwwwwwwww",
+    "wwwwWWWwwwwwWWWw",
+    "wwwwWBWwwwwwWBWw",
+    "wwwwwwwwwwwwwwww",
+    "wWWWwwwwwWWWwwww",
+    "wWBWwwwwwWBWwwww",
+    "wwwwwwwwwwwwwwww",
+    "wwwwWWWwwwwwWWWw",
+    "wwwwWBWwwwwwWBWw",
+    "wwwwwwwwwwwwwwww",
+    "wWWWwwwwwWWWwwww",
+    "wWBWwwwwwWBWwwww",
+    "wwwwwwwwwwwwwwww"
   ];
   Sprites['tile_water'] = createPixelSprite(waterMat, tilePalette, 2);
 
   // Dirt/Floor Tile
   const dirtMat = [
-    "D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1",
-    "D1D2D1D1D1D1D2D1D1D1D1D2D1D1D1D1",
-    "D1D2D3D1D1D1D2D3D1D1D1D2D3D1D1D1",
-    "D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1",
-    "D1D1D1D2D1D1D1D1D1D2D1D1D1D1D1D1",
-    "D1D1D1D2D3D1D1D1D1D2D3D1D1D1D1D1",
-    "D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1",
-    "D1D2D1D1D1D1D1D2D1D1D1D1D1D2D1D1",
-    "D1D2D3D1D1D1D1D2D3D1D1D1D1D2D3D1",
-    "D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1",
-    "D1D1D1D1D2D1D1D1D1D1D2D1D1D1D1D1",
-    "D1D1D1D1D2D3D1D1D1D1D2D3D1D1D1D1",
-    "D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1",
-    "D1D2D1D1D1D1D2D1D1D1D1D2D1D1D1D1",
-    "D1D2D3D1D1D1D2D3D1D1D1D2D3D1D1D1",
-    "D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1D1"
+    "dddddddddddddddd",
+    "dDddddDddddDdddd",
+    "dDptttdDptttdDpt",
+    "dddddddddddddddd",
+    "ddddDdddddDddddd",
+    "ddddDpddddDpdddd",
+    "dddddddddddddddd",
+    "dDdddddDdddddDdd",
+    "dDpttttDpttttDpt",
+    "dddddddddddddddd",
+    "ddddDdddddDddddd",
+    "ddddDpddddDpdddd",
+    "dddddddddddddddd",
+    "dDddddDddddDdddd",
+    "dDptttdDptttdDpt",
+    "dddddddddddddddd"
   ];
   Sprites['tile_dirt'] = createPixelSprite(dirtMat, tilePalette, 2);
 
   // Lore Sign
   const signMat = [
     "................",
-    "...S1S1S1S1S1...",
-    "..S1S2S2S2S2S1..",
-    "..S1S2S3S3S2S1..",
-    "..S1S2S3S3S2S1..",
-    "..S1S2S2S2S2S1..",
-    "...S1S1S1S1S1...",
-    "......S1S1......",
-    "......S1S1......",
-    "......S1S1......",
-    "......S1S1......",
+    "...sssss........",
+    "..sSSSSs........",
+    "..sSaaSs........",
+    "..sSaaSs........",
+    "..sSSSSs........",
+    "...sssss........",
+    "......ss........",
+    "......ss........",
+    "......ss........",
+    "......ss........",
     "................",
     "................",
     "................",
@@ -253,15 +254,15 @@ export function initSprites(): void {
   // Relic Chest
   const chestMat = [
     "................",
-    "..C1C1C1C1C1C1..",
-    ".C1C2C2C2C2C2C1.",
-    ".C1C2S3S3S3C2C1.",
-    ".C1C2S3S3S3C2C1.",
-    ".C1C2C2C2C2C2C1.",
-    ".C1C1C1C1C1C1C1.",
-    ".C1C3C3C3C3C3C1.",
-    ".C1C3C3C3C3C3C1.",
-    ".C1C1C1C1C1C1C1.",
+    "..cccccc........",
+    ".cCCCCCCc.......",
+    ".cCaaaCCc.......",
+    ".cCaaaCCc.......",
+    ".cCCCCCCc.......",
+    ".ccccccc........",
+    ".cjjjjjjc.......",
+    ".cjjjjjjc.......",
+    ".ccccccc........",
     "................",
     "................",
     "................",
@@ -273,22 +274,22 @@ export function initSprites(): void {
 
   // Locked Camp Gate / Barrier
   const gateMat = [
-    "B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1",
-    "B1B2B2B1B1B2B2B1B1B2B2B1B1B2B2B1",
-    "B1B2B2B1B1B2B2B1B1B2B2B1B1B2B2B1",
-    "B1B3B3B1B1B3B3B1B1B3B3B1B1B3B3B1",
-    "B1B3B3B1B1B3B3B1B1B3B3B1B1B3B3B1",
-    "B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1",
-    "B1B2B2B1B1B2B2B1B1B2B2B1B1B2B2B1",
-    "B1B2B2B1B1B2B2B1B1B2B2B1B1B2B2B1",
-    "B1B3B3B1B1B3B3B1B1B3B3B1B1B3B3B1",
-    "B1B3B3B1B1B3B3B1B1B3B3B1B1B3B3B1",
-    "B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1",
-    "B1B2B2B1B1B2B2B1B1B2B2B1B1B2B2B1",
-    "B1B2B2B1B1B2B2B1B1B2B2B1B1B2B2B1",
-    "B1B3B3B1B1B3B3B1B1B3B3B1B1B3B3B1",
-    "B1B3B3B1B1B3B3B1B1B3B3B1B1B3B3B1",
-    "B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1"
+    "eeeeeeeeeeeeeeee",
+    "eEEeeEEeeEEeeEEe",
+    "eEEeeEEeeEEeeEEe",
+    "exxeeXXeexxeeXXe",
+    "exxeeXXeexxeeXXe",
+    "eeeeeeeeeeeeeeee",
+    "eEEeeEEeeEEeeEEe",
+    "eEEeeEEeeEEeeEEe",
+    "exxeeXXeexxeeXXe",
+    "exxeeXXeexxeeXXe",
+    "eeeeeeeeeeeeeeee",
+    "eEEeeEEeeEEeeEEe",
+    "eEEeeEEeeEEeeEEe",
+    "exxeeXXeexxeeXXe",
+    "exxeeXXeexxeeXXe",
+    "eeeeeeeeeeeeeeee"
   ];
   Sprites['tile_gate'] = createPixelSprite(gateMat, tilePalette, 2);
 
@@ -367,9 +368,10 @@ function initEnemySprites(): void {
     "..OB....BO.."
   ];
 
+  // Scale factor 3x for clear high-contrast visibility
   // Tier 1 (Green / Light Blue)
   Sprites['enemy_slime_1'] = createPixelSprite(slimeMat, { 'O': '#0f172a', 'S': '#22c55e', 'W': '#ffffff' }, 3);
-  Sprites['enemy_bat_1'] = createPixelSprite(batMat, { 'O': '#0f172a', 'W': '#e2e8f0' }, 3);
+  Sprites['enemy_bat_1'] = createPixelSprite(batMat, { 'O': '#0f172a', 'W': '#38bdf8' }, 3);
   Sprites['enemy_skeleton_1'] = createPixelSprite(skeletonMat, { 'O': '#0f172a', 'W': '#f8fafc' }, 3);
   Sprites['enemy_archer_1'] = createPixelSprite(archerMat, { 'O': '#0f172a', 'H': '#1e293b', 'S': '#fed7aa', 'W': '#fff', 'A': '#16a34a', 'G': '#facc15', 'B': '#78350f' }, 3);
   Sprites['enemy_boss_1'] = createPixelSprite(bossMat, { 'O': '#0f172a', 'R': '#dc2626', 'W': '#fff', 'A': '#7c3aed', 'G': '#facc15', 'B': '#1e293b' }, 3);
