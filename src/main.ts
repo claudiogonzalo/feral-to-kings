@@ -20,9 +20,9 @@ export class Game {
   private ctx: CanvasRenderingContext2D;
 
   private worldMap: WorldMap;
-  private player: Player;
-  private currentRoom: RoomData;
-  private enemies: Enemy[] = [];
+  public player: Player;
+  public currentRoom: RoomData;
+  public enemies: Enemy[] = [];
   private projectiles: Projectile[] = [];
 
   // Controls
@@ -95,7 +95,7 @@ export class Game {
     });
   }
 
-  private spawnRoomEnemies(): void {
+  public spawnRoomEnemies(): void {
     this.enemies = [];
     if (!this.currentRoom.hasEnemies || this.currentRoom.isCampCleared) return;
 
@@ -261,7 +261,7 @@ export class Game {
     return false;
   }
 
-  private changeRoom(gx: number, gy: number, px: number, py: number): void {
+  public changeRoom(gx: number, gy: number, px: number, py: number): void {
     this.currentRoom = this.worldMap.getRoom(gx, gy);
     this.player.x = px;
     this.player.y = py;
@@ -582,8 +582,16 @@ export class Game {
   }
 }
 
+// Global reference for testing/capturing
+declare global {
+  interface Window {
+    gameInstance?: Game;
+  }
+}
+
 // Start Game
 window.addEventListener('DOMContentLoaded', () => {
   const game = new Game();
+  window.gameInstance = game;
   game.start();
 });

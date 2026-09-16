@@ -120,7 +120,7 @@ export class Enemy {
     this.hp -= amount;
     if (this.hp <= 0) {
       this.isDead = true;
-      return true; // Kille
+      return true; // Killed
     }
     return false;
   }
