@@ -29,11 +29,14 @@ export class Game {
   private keys: Record<string, boolean> = {};
   private showInventory: boolean = false;
   private showFullMap: boolean = false;
+
+  // Secret Debug Mode ([d] or Shift+D or F2)
+  public debugMode: boolean = false;
+  public debugDrawGrid: boolean = true;
+  public debugDrawHitboxes: boolean = true;
+
   private activeMessage: string = '';
   private messageTimer: number = 0;
-
-  // Camera Zoom (1.8x default zoom centered on player)
-  private zoomLevel: number = 1.8;
 
   private lastTime: number = 0;
 
@@ -69,8 +72,11 @@ export class Game {
     window.addEventListener('keydown', (e) => {
       this.keys[e.key.toLowerCase()] = true;
 
-      // Single trigger keys
-      if (e.key.toLowerCase() === 'i') {
+      // Secret Debug Mode: [d] (when not moving) or Shift+D or F2
+      if ((e.key.toLowerCase() === 'd' && e.shiftKey) || e.key === 'F2' || e.key === '`') {
+        this.debugMode = !this.debugMode;
+        this.showMessage(`Secret Debug Mode: ${this.debugMode ? 'ENABLED' : 'DISABLED'}`);
+      } else if (e.key.toLowerCase() === 'i') {
         this.showInventory = !this.showInventory;
         if (this.showInventory) this.showFullMap = false;
       } else if (e.key.toLowerCase() === 'm') {
@@ -103,6 +109,8 @@ export class Game {
     });
   }
 
+
+
   public spawnRoomEnemies(): void {
     this.enemies = [];
     if (!this.currentRoom.hasEnemies || this.currentRoom.isCampCleared) return;
@@ -114,8 +122,8 @@ export class Game {
     }
 
     for (let i = 0; i < count; i++) {
-      const ex = (Math.floor(Math.random() * (ROOM_COLS - 6)) + 3) * TILE_SIZE;
-      const ey = (Math.floor(Math.random() * (ROOM_ROWS - 6)) + 3) * TILE_SIZE;
+      const ex = (Math.floor(Math.random() * (ROOM_COLS - 8)) + 4) * TILE_SIZE;
+      const ey = (Math.floor(Math.random() * (ROOM_ROWS - 8)) + 4) * TILE_SIZE;
       const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
       this.enemies.push(new Enemy(ex, ey, type, this.player.points));
     }
@@ -429,25 +437,7 @@ export class Game {
     this.ctx.fillStyle = '#0f172a';
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // Save context for camera transformation
-    this.ctx.save();
-
-    // Calculate Camera Centered Zoom on Player
-    const playerCenterX = this.player.x + 16;
-    const playerCenterY = this.player.y + 16;
-
-    // Clamp camera within room boundaries
-    const halfScaledWidth = (CANVAS_WIDTH / this.zoomLevel) / 2;
-    const halfScaledHeight = (CANVAS_HEIGHT / this.zoomLevel) / 2;
-
-    const camX = Math.max(halfScaledWidth, Math.min(CANVAS_WIDTH - halfScaledWidth, playerCenterX));
-    const camY = Math.max(halfScaledHeight, Math.min(CANVAS_HEIGHT - halfScaledHeight, playerCenterY));
-
-    this.ctx.translate(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-    this.ctx.scale(this.zoomLevel, this.zoomLevel);
-    this.ctx.translate(-camX, -camY);
-
-    // Render Tiles
+    // Full 1:1 Screen Room Rendering (Unzoomed for crisp 32x22 tile playability)
     for (let r = 0; r < ROOM_ROWS; r++) {
       for (let c = 0; c < ROOM_COLS; c++) {
         const t = this.currentRoom.tiles[r][c];
@@ -489,10 +479,12 @@ export class Game {
       this.ctx.fill();
     }
 
-    // Restore context for HUD overlays
-    this.ctx.restore();
+    // SECRET DEBUG OVERLAY ([D] or Shift+D or F2)
+    if (this.debugMode) {
+      this.renderDebugOverlay();
+    }
 
-    // Render HUD (Unscaled)
+    // Render HUD
     this.renderHUD();
 
     // Render Active Message Banner
@@ -517,6 +509,55 @@ export class Game {
     if (this.showFullMap) {
       this.renderFullWorldMap();
     }
+  }
+
+  private renderDebugOverlay(): void {
+    // 1. Tile Grid Overlay
+    this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+    this.ctx.lineWidth = 1;
+    for (let r = 0; r < ROOM_ROWS; r++) {
+      for (let c = 0; c < ROOM_COLS; c++) {
+        this.ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      }
+    }
+
+    // 2. Player Hitbox & Coordinates
+    const pr = this.player.getRect();
+    this.ctx.strokeStyle = '#22c55e';
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(pr.x, pr.y, pr.w, pr.h);
+    this.ctx.fillStyle = '#22c55e';
+    this.ctx.font = '10px monospace';
+    this.ctx.fillText(`P (${Math.floor(this.player.x)},${Math.floor(this.player.y)})`, this.player.x - 10, this.player.y - 5);
+
+    // 3. Enemy Hitboxes & Health Bars
+    for (const e of this.enemies) {
+      const er = e.getRect();
+      this.ctx.strokeStyle = '#ef4444';
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(er.x, er.y, er.w, er.h);
+
+      // HP Bar
+      const hpPct = Math.max(0, e.hp / e.maxHp);
+      this.ctx.fillStyle = '#1e293b';
+      this.ctx.fillRect(e.x, e.y - 8, TILE_SIZE, 4);
+      this.ctx.fillStyle = '#ef4444';
+      this.ctx.fillRect(e.x, e.y - 8, TILE_SIZE * hpPct, 4);
+
+      this.ctx.fillStyle = '#facc15';
+      this.ctx.font = '10px monospace';
+      this.ctx.fillText(`${e.type.toUpperCase()} T${e.tier}`, e.x - 5, e.y - 12);
+    }
+
+    // Debug Status Banner
+    this.ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    this.ctx.fillRect(10, CANVAS_HEIGHT - 32, 450, 24);
+    this.ctx.strokeStyle = '#22c55e';
+    this.ctx.strokeRect(10, CANVAS_HEIGHT - 32, 450, 24);
+    this.ctx.fillStyle = '#22c55e';
+    this.ctx.font = '12px monospace';
+    this.ctx.textAlign = 'left';
+    this.ctx.fillText(`[DEBUG MODE ON] RoomType:${this.currentRoom.roomType} Enemies:${this.enemies.length}`, 20, CANVAS_HEIGHT - 16);
   }
 
   private renderHUD(): void {
@@ -555,7 +596,7 @@ export class Game {
 
     this.ctx.textAlign = 'right';
     this.ctx.fillText(`Points: ${this.player.points}`, CANVAS_WIDTH - 15, 20);
-    this.ctx.fillText(`Room: (${this.currentRoom.gridX}, ${this.currentRoom.gridY}) | [M] World Map`, CANVAS_WIDTH - 15, 36);
+    this.ctx.fillText(`Room: (${this.currentRoom.gridX}, ${this.currentRoom.gridY}) | [M] Map | [D] Debug`, CANVAS_WIDTH - 15, 36);
   }
 
   private renderInventoryMenu(): void {
