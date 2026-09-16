@@ -131,6 +131,20 @@ export class WorldMap {
       }
     }
 
+    // Add Tree Groves in Sanctuary and Wilderness
+    if (roomType === RoomType.SANCTUARY) {
+      // Decorative tree clusters in Sanctuary corners
+      const treeCoords = [
+        [2, 2], [2, 3], [3, 2], [3, 3],
+        [2, 28], [2, 29], [3, 28], [3, 29],
+        [18, 2], [18, 3], [19, 2], [19, 3],
+        [18, 28], [18, 29], [19, 28], [19, 29]
+      ];
+      for (const [tr, tc] of treeCoords) {
+        tiles[tr][tc] = TileType.TREE;
+      }
+    }
+
     // Door Openings in Wall Borders (3 tiles wide in the center of each wall)
     const midX = Math.floor(ROOM_COLS / 2);
     const midY = Math.floor(ROOM_ROWS / 2);
@@ -167,12 +181,12 @@ export class WorldMap {
 
     if (roomType === RoomType.WILDERNESS) {
       // Scatter trees and rocks
-      const count = Math.floor(rng() * 15) + 10;
+      const count = Math.floor(rng() * 20) + 12;
       for (let i = 0; i < count; i++) {
         const tr = Math.floor(rng() * (ROOM_ROWS - 4)) + 2;
         const tc = Math.floor(rng() * (ROOM_COLS - 4)) + 2;
         if (tiles[tr][tc] === defaultFloor) {
-          tiles[tr][tc] = rng() < 0.6 ? TileType.TREE : TileType.WATER;
+          tiles[tr][tc] = rng() < 0.7 ? TileType.TREE : TileType.WATER;
         }
       }
     } else if (roomType === RoomType.FALLEN_KINGDOM) {
@@ -202,12 +216,16 @@ export class WorldMap {
       tiles[midY][midX] = TileType.CHEST;
       relics.push({ x: midX, y: midY, opened: false, points: 1000 });
     } else if (roomType === RoomType.CAMP) {
-      // Enemy camp structure
+      // Enemy camp structure with guard post trees
       for (let r = 5; r <= 17; r += 6) {
         for (let c = 8; c <= 24; c += 8) {
           tiles[r][c] = TileType.WALL;
         }
       }
+      tiles[3][3] = TileType.TREE;
+      tiles[3][28] = TileType.TREE;
+      tiles[18][3] = TileType.TREE;
+      tiles[18][28] = TileType.TREE;
     }
 
     return {
@@ -215,8 +233,8 @@ export class WorldMap {
       gridY: gy,
       roomType,
       tiles,
-      isCampCleared: roomType !== RoomType.CAMP,
-      hasEnemies: roomType === RoomType.CAMP || roomType === RoomType.WILDERNESS || roomType === RoomType.FALLEN_KINGDOM,
+      isCampCleared: roomType === RoomType.SANCTUARY ? true : (roomType !== RoomType.CAMP),
+      hasEnemies: roomType !== RoomType.SANCTUARY,
       loreSigns,
       relics,
       doors: {
